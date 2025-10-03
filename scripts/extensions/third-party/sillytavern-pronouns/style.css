@@ -1,0 +1,19 @@
+/* Pronoun settings UI */
+.persona_pronoun_settings_container {
+    margin: 10px 0;
+}
+
+.persona_pronoun_settings_container .flex-container {
+    gap: 10px;
+}
+
+.pronoun_preset_buttons {
+    margin: 15px 0;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pronoun_preset_buttons .menu_button {
+    min-width: 100px;
+    text-align: center;
+}
