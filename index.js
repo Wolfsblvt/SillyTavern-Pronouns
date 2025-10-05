@@ -196,30 +196,9 @@ async function injectPronounUI() {
 
     const html = await $.get(`${extensionFolderPath}/persona-pronouns.html`);
     target.after(html);
-    const container = $('#persona_pronoun_extension');
-    container.find('.persona_pronoun_title').text(t`Pronoun Settings`);
-    const labelTexts = {
-        subjective: t`Subjective ({{pronoun.subjective}}):`,
-        objective: t`Objective ({{pronoun.objective}}):`,
-        pos_det: t`Possessive Determiner ({{pronoun.pos_det}}):`,
-        pos_pro: t`Possessive Pronoun ({{pronoun.pos_pro}}):`,
-        reflexive: t`Reflexive ({{pronoun.reflexive}}):`,
-    };
-    for (const [key, text] of Object.entries(labelTexts)) {
-        container.find(`[data-pronoun-label="${key}"]`).text(text);
-    }
 
-    const presetTexts = {
-        she: t`She/Her`,
-        he: t`He/Him`,
-        they: t`They/Them`,
-        it: t`It/Its`,
-    };
-    for (const [key, text] of Object.entries(presetTexts)) {
-        const button = container.find(`[data-preset="${key}"]`);
-        button.attr('title', t`Set pronouns to ${text}`);
-        container.find(`[data-preset-label="${key}"]`).text(text);
-    }
+    // const container = $('#persona_pronoun_extension');
+
     uiInjected = true;
 }
 

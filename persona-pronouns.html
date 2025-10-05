@@ -1,46 +1,51 @@
 <div id="persona_pronoun_extension" class="persona_pronoun_settings_container" data-extension="sillytavern-pronouns">
-    <h4 class="persona_pronoun_title"></h4>
+    <h4 class="persona_pronoun_title" data-i18n="Pronoun Settings">Pronoun Settings</h4>
     <div class="persona_pronoun_fields">
         <div class="flex-container">
             <div class="flex1">
-                <label for="persona_pronoun_subjective" data-pronoun-label="subjective"></label>
-                <input id="persona_pronoun_subjective" class="text_pole" type="text" placeholder="e.g. she, he, they, it">
+                <label for="persona_pronoun_subjective" data-i18n="Subjective">Subjective</label>
+                <div class="fa-solid fa-circle-info opacity50p" title="Subjective pronoun&#10;Referred to via {{pronoun.subjective}}" data-i18n="[title]pronoun_subjective_tooltip_info"></div>
+                <input id="persona_pronoun_subjective" class="text_pole" type="text" placeholder="e.g. she, he, they, it" data-i18n="[placeholder]pronoun_subjective_placeholder" />
             </div>
             <div class="flex1">
-                <label for="persona_pronoun_objective" data-pronoun-label="objective"></label>
-                <input id="persona_pronoun_objective" class="text_pole" type="text" placeholder="e.g. her, him, them, it">
-            </div>
-        </div>
-        <div class="flex-container">
-            <div class="flex1">
-                <label for="persona_pronoun_pos_det" data-pronoun-label="pos_det"></label>
-                <input id="persona_pronoun_pos_det" class="text_pole" type="text" placeholder="e.g. her, his, their, its">
-            </div>
-            <div class="flex1">
-                <label for="persona_pronoun_pos_pro" data-pronoun-label="pos_pro"></label>
-                <input id="persona_pronoun_pos_pro" class="text_pole" type="text" placeholder="e.g. hers, his, theirs, its">
+                <label for="persona_pronoun_objective" data-i18n="Objective">Objective</label>
+                <div class="fa-solid fa-circle-info opacity50p" title="Objective pronoun&#10;Referred to via {{pronoun.objective}}" data-i18n="[title]pronoun_objective_tooltip_info"></div>
+                <input id="persona_pronoun_objective" class="text_pole" type="text" placeholder="e.g. her, him, them, it" data-i18n="[placeholder]pronoun_objective_placeholder" />
             </div>
         </div>
         <div class="flex-container">
             <div class="flex1">
-                <label for="persona_pronoun_reflexive" data-pronoun-label="reflexive"></label>
-                <input id="persona_pronoun_reflexive" class="text_pole" type="text" placeholder="e.g. herself, himself, themselves, itself">
+                <label for="persona_pronoun_pos_det" data-i18n="Possessive Determiner">Possessive Determiner</label>
+                <div class="fa-solid fa-circle-info opacity50p" title="Possessive determiner&#10;Referred to via {{pronoun.posDet}}" data-i18n="[title]pronoun_pos_det_tooltip_info"></div>
+                <input id="persona_pronoun_pos_det" class="text_pole" type="text" placeholder="e.g. her, his, their, its" data-i18n="[placeholder]pronoun_pos_det_placeholder" />
+            </div>
+            <div class="flex1">
+                <label for="persona_pronoun_pos_pro" data-i18n="Possessive Pronoun">Possessive Pronoun</label>
+                <div class="fa-solid fa-circle-info opacity50p" title="Possessive pronoun&#10;Referred to via {{pronoun.posPro}}" data-i18n="[title]pronoun_pos_pro_tooltip_info"></div>
+                <input id="persona_pronoun_pos_pro" class="text_pole" type="text" placeholder="e.g. hers, his, theirs, its" data-i18n="[placeholder]pronoun_pos_pro_placeholder" />
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="flex1">
+                <label for="persona_pronoun_reflexive" data-i18n="Reflexive">Reflexive</label>
+                <div class="fa-solid fa-circle-info opacity50p" title="Reflexive pronoun&#10;Referred to via {{pronoun.reflexive}}" data-i18n="[title]pronoun_reflexive_tooltip_info"></div>
+                <input id="persona_pronoun_reflexive" class="text_pole" type="text" placeholder="e.g. herself, himself, themselves, itself" data-i18n="[placeholder]pronoun_reflexive_placeholder" />
             </div>
             <div class="flex1"></div>
         </div>
     </div>
     <div class="pronoun_preset_buttons flex-container">
-        <div id="pronoun_preset_she" class="menu_button menu_button_icon" data-preset="she" title="">
-            <div data-preset-label="she"></div>
+        <div id="pronoun_preset_she" class="menu_button menu_button_icon" data-preset="she" title="Set pronouns to preset 'She/Her'" data-i18n="[title]Set pronouns to preset 'She/Her'">
+            <div data-i18n="She/Her">She/Her</div>
         </div>
-        <div id="pronoun_preset_he" class="menu_button menu_button_icon" data-preset="he" title="">
-            <div data-preset-label="he"></div>
+        <div id="pronoun_preset_he" class="menu_button menu_button_icon" data-preset="he" title="Set pronouns to preset 'He/Him'" data-i18n="[title]Set pronouns to preset 'He/Him'">
+            <div data-i18n="He/Him">He/Him</div>
         </div>
-        <div id="pronoun_preset_they" class="menu_button menu_button_icon" data-preset="they" title="">
-            <div data-preset-label="they"></div>
+        <div id="pronoun_preset_they" class="menu_button menu_button_icon" data-preset="they" title="Set pronouns to preset 'They/Them'" data-i18n="[title]Set pronouns to preset 'They/Them'">
+            <div data-i18n="They/Them">They/Them</div>
         </div>
-        <div id="pronoun_preset_it" class="menu_button menu_button_icon" data-preset="it" title="">
-            <div data-preset-label="it"></div>
+        <div id="pronoun_preset_it" class="menu_button menu_button_icon" data-preset="it" title="Set pronouns to preset 'It/Its'" data-i18n="[title]Set pronouns to preset 'It/Its'">
+            <div data-i18n="It/Its">It/Its</div>
         </div>
     </div>
 </div>

@@ -8,12 +8,13 @@
 }
 
 .pronoun_preset_buttons {
-    margin: 15px 0;
     gap: 10px;
     flex-wrap: wrap;
 }
 
 .pronoun_preset_buttons .menu_button {
-    min-width: 100px;
+    min-width: 90px;
+    padding: 3px 4px;
     text-align: center;
+    font-size: calc(var(--mainFontSize) * 0.8);
 }
