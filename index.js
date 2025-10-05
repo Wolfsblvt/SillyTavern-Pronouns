@@ -1,11 +1,21 @@
-import { eventSource, event_types, saveSettingsDebounced } from '../../../../script.js';
+import { eventSource, event_types, saveSettingsDebounced, user_avatar } from '../../../../script.js';
 import { power_user } from '../../../../scripts/power-user.js';
-import * as Personas from '../../../../scripts/personas.js';
 import { MacrosParser } from '../../../../scripts/macros.js';
 import { t } from '../../../../scripts/i18n.js';
 
 const extensionName = 'sillytavern-pronouns';
 const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
+
+/**
+ * @typedef {Object} Pronouns
+ * @property {string} subjective - Subjective pronoun
+ * @property {string} objective - Objective pronoun
+ * @property {string} posDet - Possessive determiner
+ * @property {string} posPro - Possessive pronoun
+ * @property {string} reflexive - Reflexive pronoun
+ */
+
+/** @type {Pronouns} */
 const defaultPronoun = Object.freeze({
     subjective: '',
     objective: '',
@@ -14,6 +24,7 @@ const defaultPronoun = Object.freeze({
     reflexive: '',
 });
 
+/** @type {{[presetName: string]: Pronouns}} */
 const pronounPresets = {
     she: { subjective: 'she', objective: 'her', posDet: 'her', posPro: 'hers', reflexive: 'herself' },
     he: { subjective: 'he', objective: 'him', posDet: 'his', posPro: 'his', reflexive: 'himself' },
@@ -22,14 +33,21 @@ const pronounPresets = {
 };
 
 let isUpdating = false;
-let personaObserver;
 let lastPersonaId = null;
 let uiInjected = false;
 
+/**
+ * Gets the current persona ID
+ * @returns {string} The current persona ID
+ */
 function getCurrentPersonaId() {
-    return Personas.user_avatar || '';
+    return user_avatar || '';
 }
 
+/**
+ * Ensures the persona container exists
+ * @returns {{pronoun: Pronouns} | null} The persona container
+ */
 function ensurePersonaContainer() {
     power_user.persona_descriptions = power_user.persona_descriptions || {};
     const personaId = getCurrentPersonaId();
@@ -57,6 +75,10 @@ function ensurePersonaContainer() {
     return descriptor;
 }
 
+/**
+ * Gets the current pronoun values
+ * @returns {Pronouns} The current pronoun values
+ */
 function getCurrentPronounValues() {
     const personaId = getCurrentPersonaId();
     if (!personaId) {
@@ -143,24 +165,6 @@ function registerEventListeners() {
     eventSource.on(event_types.SETTINGS_LOADED_AFTER, () => setTimeout(refreshPronounInputs, 0));
     eventSource.on(event_types.CHAT_CHANGED, () => setTimeout(refreshPronounInputs, 0));
     eventSource.on(event_types.SETTINGS_UPDATED, () => setTimeout(refreshPronounInputs, 0));
-    eventSource.on(event_types.SETTINGS_LOADED_AFTER, () => setTimeout(setupPersonaObserver, 0));
-}
-
-function setupPersonaObserver() {
-    const target = document.querySelector('#your_name');
-    if (!target) {
-        return;
-    }
-
-    if (personaObserver) {
-        personaObserver.disconnect();
-    }
-
-    personaObserver = new MutationObserver(() => {
-        refreshPronounInputs();
-    });
-
-    personaObserver.observe(target, { childList: true, subtree: true, characterData: true });
 }
 
 function registerPronounMacros() {
@@ -219,10 +223,10 @@ async function injectPronounUI() {
     uiInjected = true;
 }
 
+// This function is called when the extension is loaded
 jQuery(async () => {
     await injectPronounUI();
     registerEventListeners();
-    setupPersonaObserver();
     registerPronounMacros();
     refreshPronounInputs();
 });
