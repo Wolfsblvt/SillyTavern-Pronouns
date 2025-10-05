@@ -1,24 +1,24 @@
-import { eventSource, event_types, saveSettingsDebounced } from "../../../../script.js";
-import { power_user } from "../../../../scripts/power-user.js";
-import * as Personas from "../../../../scripts/personas.js";
-import { MacrosParser } from "../../../../scripts/macros.js";
-import { t } from "../../../../scripts/i18n.js";
+import { eventSource, event_types, saveSettingsDebounced } from '../../../../script.js';
+import { power_user } from '../../../../scripts/power-user.js';
+import * as Personas from '../../../../scripts/personas.js';
+import { MacrosParser } from '../../../../scripts/macros.js';
+import { t } from '../../../../scripts/i18n.js';
 
-const extensionName = "sillytavern-pronouns";
+const extensionName = 'sillytavern-pronouns';
 const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
 const defaultPronoun = Object.freeze({
-    subjective: "",
-    objective: "",
-    posDet: "",
-    posPro: "",
-    reflexive: "",
+    subjective: '',
+    objective: '',
+    posDet: '',
+    posPro: '',
+    reflexive: '',
 });
 
 const pronounPresets = {
-    she: { subjective: "she", objective: "her", posDet: "her", posPro: "hers", reflexive: "herself" },
-    he: { subjective: "he", objective: "him", posDet: "his", posPro: "his", reflexive: "himself" },
-    they: { subjective: "they", objective: "them", posDet: "their", posPro: "theirs", reflexive: "themselves" },
-    it: { subjective: "it", objective: "it", posDet: "its", posPro: "its", reflexive: "itself" },
+    she: { subjective: 'she', objective: 'her', posDet: 'her', posPro: 'hers', reflexive: 'herself' },
+    he: { subjective: 'he', objective: 'him', posDet: 'his', posPro: 'his', reflexive: 'himself' },
+    they: { subjective: 'they', objective: 'them', posDet: 'their', posPro: 'theirs', reflexive: 'themselves' },
+    it: { subjective: 'it', objective: 'it', posDet: 'its', posPro: 'its', reflexive: 'itself' },
 };
 
 let isUpdating = false;
@@ -27,7 +27,7 @@ let lastPersonaId = null;
 let uiInjected = false;
 
 function getCurrentPersonaId() {
-    return Personas.user_avatar || "";
+    return Personas.user_avatar || '';
 }
 
 function ensurePersonaContainer() {
@@ -46,11 +46,11 @@ function ensurePersonaContainer() {
         descriptor.pronoun = { ...defaultPronoun };
     } else {
         descriptor.pronoun = {
-            subjective: descriptor.pronoun.subjective ?? "",
-            objective: descriptor.pronoun.objective ?? "",
-            posDet: descriptor.pronoun.posDet ?? "",
-            posPro: descriptor.pronoun.posPro ?? "",
-            reflexive: descriptor.pronoun.reflexive ?? "",
+            subjective: descriptor.pronoun.subjective ?? '',
+            objective: descriptor.pronoun.objective ?? '',
+            posDet: descriptor.pronoun.posDet ?? '',
+            posPro: descriptor.pronoun.posPro ?? '',
+            reflexive: descriptor.pronoun.reflexive ?? '',
         };
     }
 
@@ -66,11 +66,11 @@ function getCurrentPronounValues() {
     const descriptor = power_user.persona_descriptions?.[personaId];
     const pronoun = descriptor?.pronoun;
     return {
-        subjective: pronoun?.subjective ?? "",
-        objective: pronoun?.objective ?? "",
-        posDet: pronoun?.posDet ?? "",
-        posPro: pronoun?.posPro ?? "",
-        reflexive: pronoun?.reflexive ?? "",
+        subjective: pronoun?.subjective ?? '',
+        objective: pronoun?.objective ?? '',
+        posDet: pronoun?.posDet ?? '',
+        posPro: pronoun?.posPro ?? '',
+        reflexive: pronoun?.reflexive ?? '',
     };
 }
 
@@ -87,11 +87,11 @@ function refreshPronounInputs() {
     const pronouns = getCurrentPronounValues();
 
     isUpdating = true;
-    $("#persona_pronoun_subjective").val(pronouns.subjective);
-    $("#persona_pronoun_objective").val(pronouns.objective);
-    $("#persona_pronoun_pos_det").val(pronouns.posDet);
-    $("#persona_pronoun_pos_pro").val(pronouns.posPro);
-    $("#persona_pronoun_reflexive").val(pronouns.reflexive);
+    $('#persona_pronoun_subjective').val(pronouns.subjective);
+    $('#persona_pronoun_objective').val(pronouns.objective);
+    $('#persona_pronoun_pos_det').val(pronouns.posDet);
+    $('#persona_pronoun_pos_pro').val(pronouns.posPro);
+    $('#persona_pronoun_reflexive').val(pronouns.reflexive);
     isUpdating = false;
 }
 
@@ -105,38 +105,38 @@ function onPronounInput() {
         return;
     }
 
-    descriptor.pronoun.subjective = String($("#persona_pronoun_subjective").val() ?? "");
-    descriptor.pronoun.objective = String($("#persona_pronoun_objective").val() ?? "");
-    descriptor.pronoun.posDet = String($("#persona_pronoun_pos_det").val() ?? "");
-    descriptor.pronoun.posPro = String($("#persona_pronoun_pos_pro").val() ?? "");
-    descriptor.pronoun.reflexive = String($("#persona_pronoun_reflexive").val() ?? "");
+    descriptor.pronoun.subjective = String($('#persona_pronoun_subjective').val() ?? '');
+    descriptor.pronoun.objective = String($('#persona_pronoun_objective').val() ?? '');
+    descriptor.pronoun.posDet = String($('#persona_pronoun_pos_det').val() ?? '');
+    descriptor.pronoun.posPro = String($('#persona_pronoun_pos_pro').val() ?? '');
+    descriptor.pronoun.reflexive = String($('#persona_pronoun_reflexive').val() ?? '');
 
     saveSettingsDebounced();
 }
 
 function onPronounPresetClick(event) {
-    const presetKey = $(event.currentTarget).data("preset");
+    const presetKey = $(event.currentTarget).data('preset');
     const preset = pronounPresets[presetKey];
     if (!preset) {
         return;
     }
 
     isUpdating = true;
-    $("#persona_pronoun_subjective").val(preset.subjective);
-    $("#persona_pronoun_objective").val(preset.objective);
-    $("#persona_pronoun_pos_det").val(preset.posDet);
-    $("#persona_pronoun_pos_pro").val(preset.posPro);
-    $("#persona_pronoun_reflexive").val(preset.reflexive);
+    $('#persona_pronoun_subjective').val(preset.subjective);
+    $('#persona_pronoun_objective').val(preset.objective);
+    $('#persona_pronoun_pos_det').val(preset.posDet);
+    $('#persona_pronoun_pos_pro').val(preset.posPro);
+    $('#persona_pronoun_reflexive').val(preset.reflexive);
     isUpdating = false;
 
     onPronounInput();
 }
 
 function registerEventListeners() {
-    $(document).on("click", "#persona_pronoun_extension [data-preset]", onPronounPresetClick);
-    $(document).on("input", "#persona_pronoun_extension input", onPronounInput);
+    $(document).on('click', '#persona_pronoun_extension [data-preset]', onPronounPresetClick);
+    $(document).on('input', '#persona_pronoun_extension input', onPronounInput);
 
-    $(document).on("click", "#user_avatar_block .avatar-container", () => {
+    $(document).on('click', '#user_avatar_block .avatar-container', () => {
         setTimeout(refreshPronounInputs, 0);
     });
 
@@ -147,7 +147,7 @@ function registerEventListeners() {
 }
 
 function setupPersonaObserver() {
-    const target = document.querySelector("#your_name");
+    const target = document.querySelector('#your_name');
     if (!target) {
         return;
     }
@@ -172,28 +172,28 @@ function registerPronounMacros() {
         reflexive: t`Current persona reflexive pronoun`,
     };
 
-    MacrosParser.registerMacro("pronoun.subjective", () => getCurrentPronounValues().subjective, descriptions.subjective);
-    MacrosParser.registerMacro("pronoun.objective", () => getCurrentPronounValues().objective, descriptions.objective);
-    MacrosParser.registerMacro("pronoun.pos_det", () => getCurrentPronounValues().posDet, descriptions.pos_det);
-    MacrosParser.registerMacro("pronoun.pos_pro", () => getCurrentPronounValues().posPro, descriptions.pos_pro);
-    MacrosParser.registerMacro("pronoun.reflexive", () => getCurrentPronounValues().reflexive, descriptions.reflexive);
+    MacrosParser.registerMacro('pronoun.subjective', () => getCurrentPronounValues().subjective, descriptions.subjective);
+    MacrosParser.registerMacro('pronoun.objective', () => getCurrentPronounValues().objective, descriptions.objective);
+    MacrosParser.registerMacro('pronoun.pos_det', () => getCurrentPronounValues().posDet, descriptions.pos_det);
+    MacrosParser.registerMacro('pronoun.pos_pro', () => getCurrentPronounValues().posPro, descriptions.pos_pro);
+    MacrosParser.registerMacro('pronoun.reflexive', () => getCurrentPronounValues().reflexive, descriptions.reflexive);
 }
 
 async function injectPronounUI() {
-    if (uiInjected || document.getElementById("persona_pronoun_extension")) {
+    if (uiInjected || document.getElementById('persona_pronoun_extension')) {
         uiInjected = true;
         return;
     }
 
-    const target = $("#persona_description");
+    const target = $('#persona_description');
     if (!target.length) {
         return;
     }
 
     const html = await $.get(`${extensionFolderPath}/persona-pronouns.html`);
     target.after(html);
-    const container = $("#persona_pronoun_extension");
-    container.find(".persona_pronoun_title").text(t`Pronoun Settings`);
+    const container = $('#persona_pronoun_extension');
+    container.find('.persona_pronoun_title').text(t`Pronoun Settings`);
     const labelTexts = {
         subjective: t`Subjective ({{pronoun.subjective}}):`,
         objective: t`Objective ({{pronoun.objective}}):`,
@@ -213,7 +213,7 @@ async function injectPronounUI() {
     };
     for (const [key, text] of Object.entries(presetTexts)) {
         const button = container.find(`[data-preset="${key}"]`);
-        button.attr("title", t`Set pronouns to ${text}`);
+        button.attr('title', t`Set pronouns to ${text}`);
         container.find(`[data-preset-label="${key}"]`).text(text);
     }
     uiInjected = true;
