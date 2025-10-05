@@ -167,20 +167,53 @@ function registerEventListeners() {
     eventSource.on(event_types.SETTINGS_UPDATED, () => setTimeout(refreshPronounInputs, 0));
 }
 
-function registerPronounMacros() {
+/**
+ * Registers pronoun macros for a specific target (e.g., 'persona' or 'character')
+ * @param {string} target - The target for the pronouns ('persona', 'character', etc.)
+ * @param {() => Pronouns} getValues - Function that returns the current pronoun values
+ */
+function registerPronounMacros(target = 'persona', getValues = getCurrentPronounValues) {
     const descriptions = {
-        subjective: t`Current persona subjective pronoun`,
-        objective: t`Current persona objective pronoun`,
-        pos_det: t`Current persona possessive determiner`,
-        pos_pro: t`Current persona possessive pronoun`,
-        reflexive: t`Current persona reflexive pronoun`,
+        subjective: t`Current ${target} subjective pronoun (she/he/they)`,
+        objective: t`Current ${target} objective pronoun (her/him/them)`,
+        pos_det: t`Current ${target} possessive determiner (her/his/their)`,
+        pos_pro: t`Current ${target} possessive pronoun (hers/his/theirs)`,
+        reflexive: t`Current ${target} reflexive pronoun (herself/himself/themself)`,
     };
 
-    MacrosParser.registerMacro('pronoun.subjective', () => getCurrentPronounValues().subjective, descriptions.subjective);
-    MacrosParser.registerMacro('pronoun.objective', () => getCurrentPronounValues().objective, descriptions.objective);
-    MacrosParser.registerMacro('pronoun.pos_det', () => getCurrentPronounValues().posDet, descriptions.pos_det);
-    MacrosParser.registerMacro('pronoun.pos_pro', () => getCurrentPronounValues().posPro, descriptions.pos_pro);
-    MacrosParser.registerMacro('pronoun.reflexive', () => getCurrentPronounValues().reflexive, descriptions.reflexive);
+    // Register full namespaced macros
+    const registerMacro = (type, getter) => {
+        const macroName = `pronoun.${target}.${type}`;
+        MacrosParser.registerMacro(macroName, getter, descriptions[type]);
+    };
+
+    registerMacro('subjective', () => getValues().subjective);
+    registerMacro('objective', () => getValues().objective);
+    registerMacro('pos_det', () => getValues().posDet);
+    registerMacro('pos_pro', () => getValues().posPro);
+    registerMacro('reflexive', () => getValues().reflexive);
+
+    // TODO: Make this a setting toggle
+    let useShortAliases = true;
+    if (useShortAliases) {
+        // Register short alias macros - providing multiple alternatives for flexibility
+        const registerAliases = (aliases, getter, description) => {
+            aliases.forEach(alias => {
+                MacrosParser.registerMacro(alias, getter, description);
+            });
+        };
+
+        // Subjective
+        registerAliases(['she', 'he', 'they'], () => getValues().subjective, descriptions.subjective);
+        // Objective
+        registerAliases(['her', 'him', 'them'], () => getValues().objective, descriptions.objective);
+        // Possessive determiner (note the underscore to avoid conflict with possessive pronoun)
+        registerAliases(['her_', 'his_', 'their_'], () => getValues().posDet, descriptions.pos_det);
+        // Possessive pronoun
+        registerAliases(['hers', 'his', 'theirs'], () => getValues().posPro, descriptions.pos_pro);
+        // Reflexive
+        registerAliases(['herself', 'himself', 'themself'], () => getValues().reflexive, descriptions.reflexive);
+    }
 }
 
 async function injectPronounUI() {
