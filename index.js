@@ -2,17 +2,9 @@ import { eventSource, event_types, saveSettingsDebounced, user_avatar } from '..
 import { power_user } from '../../../../scripts/power-user.js';
 import { MacrosParser } from '../../../../scripts/macros.js';
 import { t } from '../../../../scripts/i18n.js';
+import { extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js';
 
 const extensionName = 'sillytavern-pronouns';
-const extensionFolderPath = `scripts/extensions/third-party/${extensionName}`;
-
-const SettingKeys = Object.freeze({
-    ENABLE_PERSONA_SHORTHANDS: 'enablePersonaPronounShorthands',
-});
-
-const defaultExtensionSettings = Object.freeze({
-    [SettingKeys.ENABLE_PERSONA_SHORTHANDS]: true,
-});
 
 /**
  * @typedef {Object} Pronouns
@@ -22,6 +14,25 @@ const defaultExtensionSettings = Object.freeze({
  * @property {string} posPro - Possessive pronoun
  * @property {string} reflexive - Reflexive pronoun
  */
+
+/**
+ * @typedef {Object} PronounMacroManager
+ * @property {Object} shorthands - Shorthand macros
+ * @property {() => void} shorthands.toggle - Toggles shorthands on and off
+ * @property {(enabled: boolean) => void} shorthands.set - Sets shorthands on or off
+ * @property {() => void} shorthands.enable - Enables shorthands
+ * @property {() => void} shorthands.disable - Disables shorthands
+ * @property {() => string[]} getRegistered - Returns a set of all registered macros
+ * @property {() => { subjective: string[]; objective: string[]; posDet: string[]; posPro: string[]; reflexive: string[] }} getRegisteredByType - Returns a shallow mapping of pronoun type -> set of macro names
+ */
+
+const settingKeys = Object.freeze({
+    ENABLE_PERSONA_SHORTHANDS: 'enablePersonaShorthands',
+});
+
+const defaultExtensionSettings = Object.freeze({
+    [settingKeys.ENABLE_PERSONA_SHORTHANDS]: true,
+});
 
 /** @type {Pronouns} */
 const defaultPronoun = Object.freeze({
@@ -40,16 +51,10 @@ const pronounPresets = {
     it: { subjective: 'it', objective: 'it', posDet: 'its', posPro: 'its', reflexive: 'itself' },
 };
 
-let isUpdating = false;
-let lastPersonaId = null;
-let uiInjected = false;
-let settingsPanelInjected = false;
-
 /** @type {Map<string, ReturnType<typeof createPronounMacroManager>>} */
 const pronounMacroManagers = new Map();
 
 /** @typedef {{ names: string[]; pronounKey: 'subjective' | 'objective' | 'posDet' | 'posPro' | 'reflexive'; }} PronounShorthandAlias */
-
 /** @type {ReadonlyArray<PronounShorthandAlias>} */
 const defaultShorthandAliases = Object.freeze([
     { pronounKey: 'subjective', names: ['she', 'he', 'they'] },
@@ -59,44 +64,10 @@ const defaultShorthandAliases = Object.freeze([
     { pronounKey: 'reflexive', names: ['herself', 'himself', 'themself'] },
 ]);
 
-function ensureExtensionSettings() {
-    window.extension_settings = window.extension_settings || {};
-    window.extension_settings[extensionName] = window.extension_settings[extensionName] || {};
-
-    const settings = window.extension_settings[extensionName];
-    for (const [key, value] of Object.entries(defaultExtensionSettings)) {
-        if (!(key in settings)) {
-            settings[key] = value;
-        }
-    }
-
-    return settings;
-}
-
-function getPersonaShorthandSetting() {
-    const settings = ensureExtensionSettings();
-    return Boolean(settings[SettingKeys.ENABLE_PERSONA_SHORTHANDS]);
-}
-
-function setPersonaShorthandSetting(enabled) {
-    const settings = ensureExtensionSettings();
-    settings[SettingKeys.ENABLE_PERSONA_SHORTHANDS] = enabled;
-    applyPersonaShorthandSetting(enabled);
-    saveSettingsDebounced();
-}
-
-function applyPersonaShorthandSetting(enabled) {
-    const manager = pronounMacroManagers.get('persona');
-    if (manager) {
-        manager.setShorthandsEnabled(enabled);
-    }
-
-    updateShorthandToggleUI(enabled);
-}
-
-function updateShorthandToggleUI(enabled) {
-    $('#persona_pronoun_enable_shorthands').prop('checked', enabled);
-}
+// Local settings and state tracking
+let isUpdating = false;
+let lastPersonaId = null;
+let uiInjected = false;
 
 /**
  * Gets the current persona ID
@@ -216,35 +187,46 @@ function onPronounPresetClick(event) {
     onPronounInput();
 }
 
+function ensureExtensionSettings() {
+    extension_settings[extensionName] = extension_settings[extensionName] || {};
+
+    const settings = extension_settings[extensionName];
+    for (const [key, value] of Object.entries(defaultExtensionSettings)) {
+        if (!(key in settings)) {
+            settings[key] = value;
+        }
+    }
+
+    return settings;
+}
+
+function getPersonaShorthandSetting() {
+    return Boolean(extension_settings[extensionName]?.[settingKeys.ENABLE_PERSONA_SHORTHANDS]);
+}
+
+function setPersonaShorthandSetting(enabled) {
+    const settings = ensureExtensionSettings();
+    settings[settingKeys.ENABLE_PERSONA_SHORTHANDS] = enabled;
+    applyPersonaShorthandSetting(enabled);
+    saveSettingsDebounced();
+}
+
+function applyPersonaShorthandSetting(enabled) {
+    const manager = pronounMacroManagers.get('persona');
+    manager?.shorthands.set(enabled);
+    $('#persona_pronoun_enable_shorthands').prop('checked', enabled);
+    updatePronounTooltips();
+}
+
 function onShorthandToggleChange(event) {
     const enabled = $(event.currentTarget).is(':checked');
     setPersonaShorthandSetting(enabled);
 }
 
-function registerEventListeners() {
-    $(document).on('click', '#persona_pronoun_extension [data-preset]', onPronounPresetClick);
-    $(document).on('input', '#persona_pronoun_extension input', onPronounInput);
-    $(document).on('change', '#persona_pronoun_enable_shorthands', onShorthandToggleChange);
-
-    $(document).on('click', '#user_avatar_block .avatar-container', () => {
-        setTimeout(refreshPronounInputs, 0);
-    });
-
-    eventSource.on(event_types.SETTINGS_LOADED_AFTER, () => {
-        setTimeout(() => {
-            refreshPronounInputs();
-            applyPersonaShorthandSetting(getPersonaShorthandSetting());
-        }, 0);
-    });
-    eventSource.on(event_types.CHAT_CHANGED, () => setTimeout(refreshPronounInputs, 0));
-    eventSource.on(event_types.SETTINGS_UPDATED, () => {
-        setTimeout(() => {
-            refreshPronounInputs();
-            applyPersonaShorthandSetting(getPersonaShorthandSetting());
-        }, 0);
-    });
-}
-
+/**
+ * @param {{ target?: string, getValues?: () => { subjective: string, objective: string, posDet: string, posPro: string, reflexive: string }, shorthandAliases?: ReadonlyArray<{ names: string[], pronounKey: string }> }} options
+ * @returns {PronounMacroManager}
+ */
 function createPronounMacroManager({ target = 'persona', getValues = getCurrentPronounValues, shorthandAliases = defaultShorthandAliases } = {}) {
     const descriptions = {
         subjective: t`Current ${target} subjective pronoun (she/he/they)`,
@@ -262,162 +244,176 @@ function createPronounMacroManager({ target = 'persona', getValues = getCurrentP
         reflexive: () => getValues().reflexive,
     };
 
-    /** @type {{[K in keyof Pronouns]: string}} */
-    const descriptionMap = {
-        subjective: descriptions.subjective,
-        objective: descriptions.objective,
-        posDet: descriptions.pos_det,
-        posPro: descriptions.pos_pro,
-        reflexive: descriptions.reflexive,
-    };
+    /** @type {Map<'subjective' | 'objective' | 'posDet' | 'posPro' | 'reflexive' | string, Set<string>>} */
+    const macroByType = new Map([
+        ['subjective', new Set()],
+        ['objective', new Set()],
+        ['posDet', new Set()],
+        ['posPro', new Set()],
+        ['reflexive', new Set()],
+    ]);
+    /** @type {Set<string>} */
+    const shorthands = new Set();
 
-    let baseRegistered = false;
-    let shorthandsEnabled = false;
-    const shorthandMacroNames = new Set();
+    // Persona macros will have - as their base macro - no sub name of them (similarly to how WyvernChat has them)
+    const subName = target === 'persona' ? '' : `${target}.`;
 
     const baseMacroDefinitions = [
-        { name: `pronoun.${target}.subjective`, getter: valueGetters.subjective, description: descriptions.subjective },
-        { name: `pronoun.${target}.objective`, getter: valueGetters.objective, description: descriptions.objective },
-        { name: `pronoun.${target}.pos_det`, getter: valueGetters.posDet, description: descriptions.pos_det },
-        { name: `pronoun.${target}.pos_pro`, getter: valueGetters.posPro, description: descriptions.pos_pro },
-        { name: `pronoun.${target}.reflexive`, getter: valueGetters.reflexive, description: descriptions.reflexive },
+        { name: `pronoun.${subName}subjective`, getter: valueGetters.subjective, description: descriptions.subjective, pronounKey: 'subjective' },
+        { name: `pronoun.${subName}objective`, getter: valueGetters.objective, description: descriptions.objective, pronounKey: 'objective' },
+        { name: `pronoun.${subName}pos_det`, getter: valueGetters.posDet, description: descriptions.pos_det, pronounKey: 'posDet' },
+        { name: `pronoun.${subName}pos_pro`, getter: valueGetters.posPro, description: descriptions.pos_pro, pronounKey: 'posPro' },
+        { name: `pronoun.${subName}reflexive`, getter: valueGetters.reflexive, description: descriptions.reflexive, pronounKey: 'reflexive' },
     ];
-
-    function registerBaseMacros() {
-        if (baseRegistered) {
-            return;
-        }
-
-        baseMacroDefinitions.forEach(({ name, getter, description }) => {
-            MacrosParser.registerMacro(name, getter, description);
-        });
-
-        baseRegistered = true;
-    }
+    baseMacroDefinitions.forEach(({ name, getter, description, pronounKey }) => {
+        if (MacrosParser.has(name)) return;
+        MacrosParser.registerMacro(name, getter, description);
+        macroByType.get(pronounKey).add(name);
+    });
 
     function enableShorthands() {
-        if (shorthandsEnabled) {
-            return;
-        }
-
         shorthandAliases.forEach(({ names, pronounKey }) => {
             const getter = valueGetters[pronounKey];
-            const description = descriptionMap[pronounKey];
-            if (!getter || !description) {
-                return;
-            }
-
+            const descriptionKey = pronounKey === 'posDet' ? 'pos_det' : pronounKey === 'posPro' ? 'pos_pro' : pronounKey;
+            const description = descriptions[descriptionKey];
+            if (!getter || !description) return;
             names.forEach(name => {
+                if (MacrosParser.has(name)) return;
                 MacrosParser.registerMacro(name, getter, description);
-                shorthandMacroNames.add(name);
+                macroByType.get(pronounKey).add(name);
+                shorthands.add(name);
             });
         });
-
-        shorthandsEnabled = true;
     }
 
     function disableShorthands() {
-        if (!shorthandsEnabled) {
-            return;
+        // Unregister and clear based on shortHands
+        for (const name of shorthands) {
+            for (const [, macros] of macroByType.entries()) {
+                if (!macros.has(name)) continue;
+                MacrosParser.unregisterMacro(name);
+                macros.delete(name);
+                shorthands.delete(name);
+            }
         }
-
-        shorthandMacroNames.forEach(name => {
-            MacrosParser.unregisterMacro(name);
-        });
-
-        shorthandMacroNames.clear();
-        shorthandsEnabled = false;
+        shorthands.clear();
     }
 
-    registerBaseMacros();
+    if (target === 'persona') {
+        updatePronounTooltips();
+    }
 
     return {
-        registerBase: registerBaseMacros,
-        enableShorthands,
-        disableShorthands,
-        setShorthandsEnabled(enabled) {
-            registerBaseMacros();
-            if (enabled) {
-                enableShorthands();
-            } else {
-                disableShorthands();
-            }
+        shorthands: {
+            toggle: () => Array.from(macroByType.values()).some(s => s.size > 0) ? disableShorthands() : enableShorthands(),
+            set: (enabled) => enabled ? enableShorthands() : disableShorthands(),
+            enable: enableShorthands,
+            disable: disableShorthands,
         },
+        getRegistered: () => macroByType.values().flatMap(x => x).toArray(),
+        getRegisteredByType: () => ({
+            subjective: Array.from(macroByType.get('subjective') ?? []),
+            objective: Array.from(macroByType.get('objective') ?? []),
+            posDet: Array.from(macroByType.get('posDet') ?? []),
+            posPro: Array.from(macroByType.get('posPro') ?? []),
+            reflexive: Array.from(macroByType.get('reflexive') ?? []),
+        }),
     };
 }
 
-async function injectPronounUI() {
-    if (uiInjected || document.getElementById('persona_pronoun_extension')) {
-        uiInjected = true;
+/**
+ * Updates the info icon titles with the currently available macros per pronoun type
+ * @param {string} target - The target to receive the macro updates. Defaults to 'persona'
+ */
+function updatePronounTooltips(target = 'persona') {
+    const manager = pronounMacroManagers.get(target);
+    if (!manager) return;
+
+    const byType = manager.getRegisteredByType?.();
+    if (!byType) return;
+
+    /** @param {string} id */
+    /** @param {string} typeName */
+    function setTitle(id, typeName, macros) {
+        const infoEl = $(`#${id}`).parent().find('.fa-solid.fa-circle-info');
+        if (!infoEl || infoEl.length === 0) return;
+        const macroList = Array.from(macros).map(name => `  {{${name}}}`).join('\n');
+        // Keep a concise, consistent message
+        const capitalizedTypeName = typeName.charAt(0).toUpperCase() + typeName.slice(1);
+        infoEl.attr('title', t`${capitalizedTypeName} pronoun macros` + '\n' + macroList);
+    }
+
+    setTitle('persona_pronoun_subjective', 'subjective', byType.subjective ?? new Set());
+    setTitle('persona_pronoun_objective', 'objective', byType.objective ?? new Set());
+    setTitle('persona_pronoun_pos_det', 'possessive determiner', byType.posDet ?? new Set());
+    setTitle('persona_pronoun_pos_pro', 'possessive pronoun', byType.posPro ?? new Set());
+    setTitle('persona_pronoun_reflexive', 'reflexive pronoun', byType.reflexive ?? new Set());
+}
+
+async function injectPersonaPronounUI() {
+    if (uiInjected || document.getElementById('pronoun_extension')) {
         return;
     }
 
     const target = $('#persona_description');
-    if (!target.length) {
+
+    const html = await renderExtensionTemplateAsync(`third-party/${extensionName}`, 'persona-pronouns');
+    target.after(html);
+}
+
+async function injectExtensionSettingsUI() {
+    if (uiInjected || document.getElementById('extension_settings_pronouns')) {
         return;
     }
 
-    const html = await $.get(`${extensionFolderPath}/persona-pronouns.html`);
-    target.after(html);
+    // Check if settings2 or settings has more children than the other, so we insert in the one with less
+    const col2 = document.getElementById('extensions_settings2');
+    const col1 = document.getElementById('extensions_settings');
+    const parent = col2 && col1 ? (col2.children.length > col1.children.length ? col1 : col2) : (col2 || col1);
 
-    // const container = $('#persona_pronoun_extension');
+    const html = await renderExtensionTemplateAsync(`third-party/${extensionName}`, 'settings');
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    parent.appendChild(template.content);
 
+    const shorthandsToggle = $('#pronouns_enable_shorthands');
+    shorthandsToggle.prop('checked', getPersonaShorthandSetting());
+    shorthandsToggle.on('change', onShorthandToggleChange);
+}
+
+async function injectPronounUI() {
+    if (uiInjected) return;
+    await injectPersonaPronounUI();
+    await injectExtensionSettingsUI();
     uiInjected = true;
 }
 
-function injectExtensionSettingsUI() {
-    if (settingsPanelInjected) {
-        return;
-    }
+function registerEventListeners() {
+    $(document).on('click', '#persona_pronoun_extension [data-preset]', onPronounPresetClick);
+    $(document).on('input', '#persona_pronoun_extension input', onPronounInput);
+    $(document).on('change', '#pronouns_enable_shorthands', onShorthandToggleChange);
 
-    const parent = document.getElementById('extensions_settings2') || document.getElementById('extensions_settings');
-    if (!parent) {
-        return;
-    }
-
-    const container = $('<div />', {
-        id: `${extensionName}_settings_container`,
-        class: 'extension_container',
+    $(document).on('click', '#user_avatar_block .avatar-container', () => {
+        setTimeout(refreshPronounInputs, 0);
     });
-
-    const header = $('<h4 />', {
-        text: t`Persona Pronoun Macros`,
-    }).attr('data-i18n', 'Persona Pronoun Macros');
-
-    const toggleLabel = $('<label />', {
-        class: 'checkbox_label flex-container alignitemscenter',
-    });
-
-    const toggleInput = $('<input />', {
-        type: 'checkbox',
-        id: 'persona_pronoun_enable_shorthands',
-    });
-
-    const toggleText = $('<span />', {
-        text: t`Enable shorthand macros for persona pronouns`,
-    }).attr('data-i18n', 'Enable shorthand macros for persona pronouns');
-
-    toggleLabel.append(toggleInput, toggleText);
-    container.append(header, toggleLabel);
-    parent.appendChild(container.get(0));
-
-    settingsPanelInjected = true;
-
-    updateShorthandToggleUI(getPersonaShorthandSetting());
+    eventSource.on(event_types.CHAT_CHANGED, () => setTimeout(refreshPronounInputs, 0));
 }
 
-// This function is called when the extension is loaded
+/**
+ * This function is called when the extension is loaded
+ */
 jQuery(async () => {
     ensureExtensionSettings();
 
     await injectPronounUI();
-    injectExtensionSettingsUI();
     registerEventListeners();
+
     const personaManager = createPronounMacroManager({
         target: 'persona',
         getValues: getCurrentPronounValues,
     });
     pronounMacroManagers.set('persona', personaManager);
+
     applyPersonaShorthandSetting(getPersonaShorthandSetting());
     refreshPronounInputs();
 });
