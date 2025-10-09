@@ -1,7 +1,7 @@
 # SillyTavern Pronouns [Extension]
 
 ![ext version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FWolfsblvt%2FSillyTavern-Pronouns%2Fmain%2Fmanifest.json&label=extension%20version&query=%24.version&color=blue)
-![tag version](https://img.shields.io/github/v/tag/Wolfsblvt/SillyTavern-Pronouns?label=tag)
+![tag version](https://img.shields.io/github/v/tag/Wolfsblvt/SillyTavern-Pronouns?label=tag&color=lightblue)
 ![required](https://img.shields.io/badge/Required%20ST%20version-staging-orange)
 
 > [!WARNING]
