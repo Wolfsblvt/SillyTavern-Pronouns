@@ -31,7 +31,7 @@ const settingKeys = Object.freeze({
 });
 
 const defaultExtensionSettings = Object.freeze({
-    [settingKeys.ENABLE_PERSONA_SHORTHANDS]: true,
+    [settingKeys.ENABLE_PERSONA_SHORTHANDS]: false, // shorthands should be opt-in by design, they bloat the macros list
 });
 
 /** @type {Pronouns} */
@@ -214,7 +214,7 @@ function setPersonaShorthandSetting(enabled) {
 function applyPersonaShorthandSetting(enabled) {
     const manager = pronounMacroManagers.get('persona');
     manager?.shorthands.set(enabled);
-    $('#persona_pronoun_enable_shorthands').prop('checked', enabled);
+    $('#pronouns_enable_shorthands').prop('checked', enabled);
     updatePronounTooltips();
 }
 
@@ -310,7 +310,7 @@ function createPronounMacroManager({ target = 'persona', getValues = getCurrentP
             enable: enableShorthands,
             disable: disableShorthands,
         },
-        getRegistered: () => macroByType.values().flatMap(x => x).toArray(),
+        getRegistered: () => Array.from(macroByType.values()).flatMap(set => Array.from(set)),
         getRegisteredByType: () => ({
             subjective: Array.from(macroByType.get('subjective') ?? []),
             objective: Array.from(macroByType.get('objective') ?? []),
@@ -351,7 +351,7 @@ function updatePronounTooltips(target = 'persona') {
 }
 
 async function injectPersonaPronounUI() {
-    if (uiInjected || document.getElementById('pronoun_extension')) {
+    if (uiInjected || document.getElementById('persona_pronoun_extension')) {
         return;
     }
 
@@ -391,7 +391,6 @@ async function injectPronounUI() {
 function registerEventListeners() {
     $(document).on('click', '#persona_pronoun_extension [data-preset]', onPronounPresetClick);
     $(document).on('input', '#persona_pronoun_extension input', onPronounInput);
-    $(document).on('change', '#pronouns_enable_shorthands', onShorthandToggleChange);
 
     $(document).on('click', '#user_avatar_block .avatar-container', () => {
         setTimeout(refreshPronounInputs, 0);
