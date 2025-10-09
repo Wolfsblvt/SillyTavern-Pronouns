@@ -7,7 +7,9 @@
 > [!WARNING]
 > This is a pre-release and under active development. APIs, macros, and UI may change. Breaking changes can occur until a first official release.
 
-Add persona pronoun management to SillyTavern without touching core. Ports the functionality from SillyTavern PR [#4542](https://github.com/SillyTavern/SillyTavern/pull/4542), providing a dedicated UI and prompt macros that resolve to the active persona.
+Persona pronoun management for SillyTavern. This extension adds a dedicated editor under Persona Management, quick presets (She/Her, He/Him, They/Them, It/Its) and prompt macros for the active persona (e.g., `{{pronoun.subjective}}`) with optional shorthand macros via settings.
+
+Inspired by and partially ported from SillyTavern PR [#4542](https://github.com/SillyTavern/SillyTavern/pull/4542).
 
 ## Requirements
 
@@ -21,7 +23,7 @@ Install using SillyTavern's extension installer from the URL:
 https://github.com/Wolfsblvt/SillyTavern-Pronouns
 ```
 
-## Usage
+## Features
 
 - **Pronoun editor**
   - Appears under the persona description field in Persona Management.
@@ -53,7 +55,7 @@ https://github.com/Wolfsblvt/SillyTavern-Pronouns
 - **Possessive pronoun**: hers/his/theirs/its (stands alone)
 - **Reflexive**: herself/himself/themself/itself
 
-For explanation, see [pronouns.org](https://pronouns.org/) or [Wikipedia](https://en.wikipedia.org/wiki/English_personal_pronouns).
+For more information, see [pronouns.org](https://pronouns.org/) or [Wikipedia](https://en.wikipedia.org/wiki/English_personal_pronouns).
 
 ## Roadmap
 
