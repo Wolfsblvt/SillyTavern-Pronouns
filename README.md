@@ -1,32 +1,70 @@
-# SillyTavern Pronouns Extension
+# SillyTavern Pronouns [Extension]
 
-Add persona pronoun management to SillyTavern without touching core. The extension ports the functionality that previously lived in the SillyTavern staging branch pull request [#4542](https://github.com/SillyTavern/SillyTavern/pull/4542), providing a dedicated UI for editing pronouns and new prompt macros that resolve to the active persona's values.
+![ext version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FWolfsblvt%2FSillyTavern-Pronouns%2Fmain%2Fmanifest.json&label=extension%20version&query=%24.version&color=blue)
+![tag version](https://img.shields.io/github/v/tag/Wolfsblvt/SillyTavern-Pronouns?label=tag)
+![required](https://img.shields.io/badge/Required%20ST%20version-staging-orange)
 
-## Features
+> [!WARNING]
+> This is a pre-release and under active development. APIs, macros, and UI may change. Breaking changes can occur until a first official release.
 
-- Adds a pronoun editor to the Persona Management screen with fields for subjective, objective, possessive determiner, possessive pronoun, and reflexive forms.
-- Includes quick-fill presets for common pronoun sets (She/Her, He/Him, They/Them, It/Its).
-- Stores pronoun data directly on persona descriptors so the values persist with exports/imports and backups.
-- Registers the following macros for use anywhere macros are supported:
-  - `{{pronoun.subjective}}`
-  - `{{pronoun.objective}}`
-  - `{{pronoun.pos_det}}`
-  - `{{pronoun.pos_pro}}`
-  - `{{pronoun.reflexive}}`
+Add persona pronoun management to SillyTavern without touching core. Ports the functionality from SillyTavern PR [#4542](https://github.com/SillyTavern/SillyTavern/pull/4542), providing a dedicated UI and prompt macros that resolve to the active persona.
+
+## Requirements
+
+![required](https://img.shields.io/badge/Required%20ST%20version-staging-orange)
 
 ## Installation
 
-1. Download or clone this repository.
-2. Copy the `scripts/extensions/third-party/sillytavern-pronouns` folder into your SillyTavern installation at `public/scripts/extensions/third-party/` (create the directory if it does not exist).
-3. In SillyTavern, open **Settings → Extensions**, enable **Persona Pronouns**, and reload if prompted.
+Install using SillyTavern's extension installer from the URL:
 
-The pronoun editor will appear underneath the persona description field once the extension is enabled.
+```txt
+https://github.com/Wolfsblvt/SillyTavern-Pronouns
+```
 
-## Support and Contributions
+## Usage
+
+- **Pronoun editor**
+  - Appears under the persona description field in Persona Management.
+  - Fields: subjective, objective, possessive determiner, possessive pronoun, reflexive.
+  - Values are stored on the persona descriptor and persist with exports/backups.
+
+- **Presets**
+  - Quick-fill buttons: `She/Her`, `He/Him`, `They/Them`, `It/Its`.
+
+- **Macros** (usable anywhere macros are supported)
+  - Persona macros:
+    - `{{pronoun.subjective}}`
+    - `{{pronoun.objective}}`
+    - `{{pronoun.pos_det}}`  (possessive determiner)
+    - `{{pronoun.pos_pro}}`  (possessive pronoun)
+    - `{{pronoun.reflexive}}`
+  - Shorthand aliases (disabled by default — enable at Settings → Extensions → Pronouns → Enable shorthand macros):
+    - Subjective: `{{she}}`, `{{he}}`, `{{they}}`
+    - Objective: `{{her}}`, `{{him}}`, `{{them}}`
+    - Possessive determiner: `{{her_}}`, `{{his_}}`, `{{their_}}` (note the underscore)
+    - Possessive pronoun: `{{hers}}`, `{{his}}`, `{{theirs}}`
+    - Reflexive: `{{herself}}`, `{{himself}}`, `{{themself}}`
+  - The info icons next to each field show the currently available macros (including shorthands if enabled).
+
+### Terminology
+- **Subjective**: she/he/they/it (used as subject)
+- **Objective**: her/him/them/it (used as object)
+- **Possessive determiner**: her/his/their/its (before nouns)
+- **Possessive pronoun**: hers/his/theirs/its (stands alone)
+- **Reflexive**: herself/himself/themself/itself
+
+For explanation, see [pronouns.org](https://pronouns.org/) or [Wikipedia](https://en.wikipedia.org/wiki/English_personal_pronouns).
+
+## Roadmap
+
+- [x] Support WyvernChat macros as default
+- [ ] (?) Optional setting to provide namespaced persona macros `{{pronoun.persona.*}}` in addition to the default `{{pronoun.*}}`
+- [ ] Add feature popup to paste text and replace pronouns with macros
+- [ ] Add support for character pronouns
+- [ ] Shorthands in other languages.. maybe?
+- [ ] add rainbows
+
+## Contribution
 
 - Discord: `@Wolfsblvt`
-- GitHub Issues and pull requests are welcome.
-
-## License
-
-AGPL-3.0
+- Issues and pull requests are welcome.
