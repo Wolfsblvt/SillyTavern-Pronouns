@@ -5,6 +5,7 @@ import { t } from '../../../../scripts/i18n.js';
 import { extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js';
 
 const extensionName = 'sillytavern-pronouns';
+const extensionFolderName = 'SillyTavern-Pronouns';
 
 /**
  * @typedef {Object} Pronouns
@@ -357,7 +358,7 @@ async function injectPersonaPronounUI() {
 
     const target = $('#persona_description');
 
-    const html = await renderExtensionTemplateAsync(`third-party/${extensionName}`, 'persona-pronouns');
+    const html = await renderExtensionTemplateAsync(`third-party/${extensionFolderName}`, 'persona-pronouns');
     target.after(html);
 }
 
@@ -371,7 +372,7 @@ async function injectExtensionSettingsUI() {
     const col1 = document.getElementById('extensions_settings');
     const parent = col2 && col1 ? (col2.children.length > col1.children.length ? col1 : col2) : (col2 || col1);
 
-    const html = await renderExtensionTemplateAsync(`third-party/${extensionName}`, 'settings');
+    const html = await renderExtensionTemplateAsync(`third-party/${extensionFolderName}`, 'settings');
     const template = document.createElement('template');
     template.innerHTML = html;
     parent.appendChild(template.content);
