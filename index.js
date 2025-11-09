@@ -4,6 +4,7 @@ import { MacrosParser } from '../../../../scripts/macros.js';
 import { t } from '../../../../scripts/i18n.js';
 import { extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js';
 import { openPronounReplacePopup } from './replacer.js';
+import { registerPronounsSlashCommands } from './pronounsSlashCommands.js';
 
 const extensionName = 'sillytavern-pronouns';
 const extensionFolderName = 'SillyTavern-Pronouns';
@@ -46,7 +47,7 @@ const defaultPronoun = Object.freeze({
 });
 
 /** @type {{[presetName: string]: Pronouns}} */
-const pronounPresets = {
+export const pronounPresets = {
     she: { subjective: 'she', objective: 'her', posDet: 'her', posPro: 'hers', reflexive: 'herself' },
     he: { subjective: 'he', objective: 'him', posDet: 'his', posPro: 'his', reflexive: 'himself' },
     they: { subjective: 'they', objective: 'them', posDet: 'their', posPro: 'theirs', reflexive: 'themselves' },
@@ -211,6 +212,55 @@ function setPersonaShorthandSetting(enabled) {
     settings[settingKeys.ENABLE_PERSONA_SHORTHANDS] = enabled;
     applyPersonaShorthandSetting(enabled);
     saveSettingsDebounced();
+}
+
+/**
+ * Sets the current persona pronouns to the provided values and persists settings.
+ * @param {Pronouns} values
+ * @returns {Pronouns}
+ */
+export function setCurrentPersonaPronouns(values) {
+    const descriptor = ensurePersonaContainer();
+    if (!descriptor) return { ...defaultPronoun };
+    descriptor.pronoun.subjective = String(values?.subjective ?? '');
+    descriptor.pronoun.objective = String(values?.objective ?? '');
+    descriptor.pronoun.posDet = String(values?.posDet ?? '');
+    descriptor.pronoun.posPro = String(values?.posPro ?? '');
+    descriptor.pronoun.reflexive = String(values?.reflexive ?? '');
+    saveSettingsDebounced();
+    updatePronounTooltips('persona');
+    refreshPronounInputs();
+    return getCurrentPronounValues();
+}
+
+/**
+ * Sets a specific pronoun field for the current persona and persists settings.
+ * @param {string} key
+ * @param {string} value
+ * @returns {string}
+ */
+export function setCurrentPersonaPronounValue(key, value) {
+    const descriptor = ensurePersonaContainer();
+    if (!descriptor) return '';
+    if (key in descriptor.pronoun) {
+        descriptor.pronoun[key] = String(value ?? '');
+        saveSettingsDebounced();
+        updatePronounTooltips('persona');
+        refreshPronounInputs();
+        return String(value ?? '');
+    }
+    return '';
+}
+
+/**
+ * Applies a preset to the current persona pronouns.
+ * @param {keyof typeof pronounPresets} presetKey
+ * @returns {Pronouns}
+ */
+export function setCurrentPersonaPronounsPreset(presetKey) {
+    const preset = pronounPresets[presetKey];
+    if (!preset) return getCurrentPronounValues();
+    return setCurrentPersonaPronouns(preset);
 }
 
 function applyPersonaShorthandSetting(enabled) {
@@ -420,4 +470,7 @@ jQuery(async () => {
 
     applyPersonaShorthandSetting(getPersonaShorthandSetting());
     refreshPronounInputs();
+
+    // Register slash commands
+    registerPronounsSlashCommands();
 });

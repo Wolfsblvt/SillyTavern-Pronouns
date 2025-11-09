@@ -15,6 +15,8 @@ function escapeForRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+
+
 /**
  * Checks whether all persona pronoun fields are empty.
  * @param {Pronouns} p
@@ -47,15 +49,20 @@ function pickMatchingShorthandAlias(pronounKey, value) {
  * by a fixed precedence: reflexive > possessive pronoun > objective > possessive determiner > subjective.
  *
  * @param {string} text - Input text to convert
- * @param {{ useShorthands?: boolean }} [options]
+ * @param {Object} [options={}] - Options object
+ * @param {boolean} [options.useShorthands=false] - Whether to use shorthand macro names
+ * @param {Pronouns} [options.pronouns=null] - Override for persona pronouns to use
  * @returns {string}
  */
-export function replacePronounsWithMacros(text, { useShorthands = false } = {}) {
+export function replacePronounsWithMacros(text, { useShorthands = false, pronouns: pronounsOverride = null } = {}) {
     if (!text) return '';
 
-    const pronouns = getCurrentPronounValues();
+    const pronouns = pronounsOverride ?? getCurrentPronounValues();
     if (arePronounsEmpty(pronouns)) {
-        toastr.warning(t`No persona pronouns are set. Set pronouns in Persona Management to enable replacement.`);
+        const msg = pronounsOverride
+            ? t`No pronoun values provided. Cannot replace.`
+            : t`No persona pronouns are set. Set pronouns in Persona Management to enable replacement.`;
+        toastr.warning(msg);
         return text;
     }
     /** @type {Array<'subjective'|'objective'|'posDet'|'posPro'|'reflexive'>} */
@@ -148,7 +155,7 @@ async function copyToClipboard(text) {
  *
  * @param {string|null|undefined} initialText - Optional text to prefill
  */
-export async function openPronounReplacePopup(initialText = null) {
+export async function openPronounReplacePopup(initialText = null, { defaultUseShorthands = true } = {}) {
     const showShorthandToggle = getPersonaShorthandSetting();
 
     const pronouns = getCurrentPronounValues();
@@ -202,7 +209,7 @@ export async function openPronounReplacePopup(initialText = null) {
             return { key, label, value, macro: baseMacro };
         }).filter(Boolean);
 
-        const useShorthands = !!getPersonaShorthandSetting() && (getReplaceShorthandsCheckbox()?.checked ?? true);
+        const useShorthands = !!getPersonaShorthandSetting() && (getReplaceShorthandsCheckbox()?.checked ?? defaultUseShorthands);
         return mapping.map(({ key, label, value, macro }) => buildRow(key, label, value, macro, useShorthands)).join('');
     }
 
@@ -228,7 +235,7 @@ export async function openPronounReplacePopup(initialText = null) {
             id: 'pronouns_replace_use_shorthands',
             label: t`Use shorthand macros (e.g. {{she}}, {{him}})`,
             tooltip: t`If enabled, uses shorthand macro names where available. Falls back to full macros otherwise.`,
-            defaultState: true,
+            defaultState: Boolean(defaultUseShorthands),
         }] : null,
         customButtons: [
             {
@@ -286,5 +293,6 @@ export async function openPronounReplacePopup(initialText = null) {
         table.innerHTML = buildTable();
     });
 
-    await popup.show();
+    const result = await popup.show();
+    return typeof result === 'string' ? result : '';
 }
