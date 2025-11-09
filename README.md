@@ -56,8 +56,9 @@ For more information, see [pronouns.org](https://pronouns.org/) or [Wikipedia](h
 ## Roadmap
 
 - [x] Support WyvernChat macros as default
+- [x] Add feature popup to paste text and replace pronouns with macros
+- [x] Slash commands for pronoun management and direct text replacement
 - [ ] (?) Optional setting to provide namespaced persona macros `{{pronoun.persona.*}}` in addition to the default `{{pronoun.*}}`
-- [ ] Add feature popup to paste text and replace pronouns with macros
 - [ ] Add support for character pronouns
 - [ ] Shorthands in other languages.. maybe?
 - [ ] add rainbows
