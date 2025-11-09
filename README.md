@@ -1,8 +1,8 @@
 # SillyTavern Pronouns [Extension]
 
-![ext version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FWolfsblvt%2FSillyTavern-Pronouns%2Fmain%2Fmanifest.json&label=extension%20version&query=%24.version&color=blue)
-![tag version](https://img.shields.io/github/v/tag/Wolfsblvt/SillyTavern-Pronouns?label=tag&color=lightblue)
-![required](https://img.shields.io/badge/Required%20ST%20version-1.13.5-darkred)
+[![ext version](https://img.shields.io/badge/dynamic/json?color=blue&label=extension%20version&query=%24.version&url=https%3A%2F%2Fraw.githubusercontent.com%2FWolfsblvt%2FSillyTavern-Pronouns%2Fmain%2Fmanifest.json)](https://github.com/Wolfsblvt/SillyTavern-Pronouns/)
+[![tag version](https://img.shields.io/github/v/tag/Wolfsblvt/SillyTavern-Pronouns?color=lightblue&label=tag)](https://github.com/Wolfsblvt/SillyTavern-Pronouns/releases/latest)
+[![required](https://img.shields.io/badge/Required%20ST%20version-1.13.5-darkred)](https://github.com/SillyTavern/SillyTavern/releases/tag/1.13.5)
 
 Persona pronoun management for SillyTavern. This extension adds a dedicated editor under Persona Management, quick presets (She/Her, He/Him, They/Them, It/Its) and prompt macros for the active persona (e.g., `{{pronoun.subjective}}`) with optional shorthand macros via settings.
 
