@@ -3,6 +3,7 @@ import { power_user } from '../../../../scripts/power-user.js';
 import { MacrosParser } from '../../../../scripts/macros.js';
 import { t } from '../../../../scripts/i18n.js';
 import { extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js';
+import { openPronounReplacePopup } from './replacer.js';
 
 const extensionName = 'sillytavern-pronouns';
 const extensionFolderName = 'SillyTavern-Pronouns';
@@ -57,7 +58,7 @@ const pronounMacroManagers = new Map();
 
 /** @typedef {{ names: string[]; pronounKey: 'subjective' | 'objective' | 'posDet' | 'posPro' | 'reflexive'; }} PronounShorthandAlias */
 /** @type {ReadonlyArray<PronounShorthandAlias>} */
-const defaultShorthandAliases = Object.freeze([
+export const defaultShorthandAliases = Object.freeze([
     { pronounKey: 'subjective', names: ['she', 'he', 'they'] },
     { pronounKey: 'objective', names: ['her', 'him', 'them'] },
     { pronounKey: 'posDet', names: ['her_', 'his_', 'their_'] },
@@ -113,7 +114,7 @@ function ensurePersonaContainer() {
  * Gets the current pronoun values
  * @returns {Pronouns} The current pronoun values
  */
-function getCurrentPronounValues() {
+export function getCurrentPronounValues() {
     const personaId = getCurrentPersonaId();
     if (!personaId) {
         return defaultPronoun;
@@ -201,7 +202,7 @@ function ensureExtensionSettings() {
     return settings;
 }
 
-function getPersonaShorthandSetting() {
+export function getPersonaShorthandSetting() {
     return Boolean(extension_settings[extensionName]?.[settingKeys.ENABLE_PERSONA_SHORTHANDS]);
 }
 
@@ -397,6 +398,9 @@ function registerEventListeners() {
         setTimeout(refreshPronounInputs, 0);
     });
     eventSource.on(event_types.CHAT_CHANGED, () => setTimeout(refreshPronounInputs, 0));
+
+    // Settings button to open the replacer popup
+    $(document).on('click', '#pronouns_open_replacer', () => openPronounReplacePopup());
 }
 
 /**
