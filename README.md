@@ -26,6 +26,10 @@ https://github.com/Wolfsblvt/SillyTavern-Pronouns
 - **Presets**
   - Quick-fill buttons: `She/Her`, `He/Him`, `They/Them`, `It/Its`.
 
+- **Text replacer**
+  - Accessible via Persona Management → Pronouns → Replace text with macros.
+  - Paste any prompt or text to automatically swap matching pronouns with the active persona macros.
+
 - **Macros** (usable anywhere macros are supported)
   - Persona macros:
     - `{{pronoun.subjective}}`
@@ -40,6 +44,9 @@ https://github.com/Wolfsblvt/SillyTavern-Pronouns
     - Possessive pronoun: `{{hers}}`, `{{his}}`, `{{theirs}}`
     - Reflexive: `{{herself}}`, `{{himself}}`, `{{themself}}`
   - The info icons next to each field show the currently available macros (including shorthands if enabled).
+
+- **Slash commands**
+  - Commands include `/pronouns`, `/pronouns-presets`, `/pronouns-macros`, `/pronouns-text`, and `/pronouns-settings`. Slash command help in SillyTavern shows detailed descriptions.
 
 ### Terminology
 - **Subjective**: she/he/they/it (used as subject)
