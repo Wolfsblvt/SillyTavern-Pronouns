@@ -316,6 +316,11 @@ function createPronounMacroManager({ target = 'persona', getValues = getCurrentP
         { name: `pronoun.${subName}pos_det`, getter: valueGetters.posDet, description: descriptions.pos_det, pronounKey: 'posDet' },
         { name: `pronoun.${subName}pos_pro`, getter: valueGetters.posPro, description: descriptions.pos_pro, pronounKey: 'posPro' },
         { name: `pronoun.${subName}reflexive`, getter: valueGetters.reflexive, description: descriptions.reflexive, pronounKey: 'reflexive' },
+        { name: 'sub', getter: valueGetters.subjective, description: descriptions.subjective, pronounKey: 'subjective' },
+        { name: 'obj', getter: valueGetters.objective, description: descriptions.objective, pronounKey: 'objective' },
+        { name: 'poss', getter: valueGetters.posDet, description: descriptions.pos_det, pronounKey: 'posDet' },
+        { name: 'poss_p', getter: valueGetters.posPro, description: descriptions.pos_pro, pronounKey: 'posPro' },
+        { name: 'ref', getter: valueGetters.reflexive, description: descriptions.reflexive, pronounKey: 'reflexive' },
     ];
     baseMacroDefinitions.forEach(({ name, getter, description, pronounKey }) => {
         if (MacrosParser.has(name)) return;
