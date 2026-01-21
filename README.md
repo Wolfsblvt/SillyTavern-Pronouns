@@ -62,6 +62,9 @@ For more information, see [pronouns.org](https://pronouns.org/) or [Wikipedia](h
 - [x] Support WyvernChat macros as default
 - [x] Add feature popup to paste text and replace pronouns with macros
 - [x] Slash commands for pronoun management and direct text replacement
+- [ ] Refactor for new Macro Engine compatibility and extended macro documentation
+- [ ] Hide Janitor.AI pronoun macros behind a toggle
+- [ ] Add `{{is}}`/`{{are}}` macros that can be set for a persona. Allowing to use something like "They" with "are", in `{{char}} has blue hair. {{They}} {{are}} a highschool student`.
 - [ ] (?) Optional setting to provide namespaced persona macros `{{pronoun.persona.*}}` in addition to the default `{{pronoun.*}}`
 - [ ] Add support for character pronouns
 - [ ] Shorthands in other languages.. maybe?
